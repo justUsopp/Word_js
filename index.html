@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giro dal mondo</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        #globe-container canvas {
+            cursor: grab;
+        }
+        #globe-container canvas:active {
+            cursor: grabbing;
+        }
+        .modal {
+            backdrop-filter: blur(8px);
+        }
+        .point-glow {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="absolute inset-x-0 top-0 z-50">
+        <nav aria-label="Global" class="flex items-center justify-between p-6 lg:px-8">
+            <div class="flex lg:flex-1">
+                <a href="#" class="-m-1.5 p-1.5">
+                    <span class="sr-only">Giro dal mondo</span>
+                    <div class="h-8 w-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-sm">G</span>
+                    </div>
+                </a>
+            </div>
+            <div class="hidden lg:flex lg:gap-x-12">
+                <a href="#" class="text-sm/6 font-semibold text-gray-900">Hero</a>
+                <a href="#" class="text-sm/6 font-semibold text-gray-900">Giro dal mondo</a>
+                <a href="#" class="text-sm/6 font-semibold text-gray-900">Tecno usato</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <div class="bg-white">
+        <div class="relative isolate px-6 pt-14 lg:px-8">
+            <div aria-hidden="true" class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80">
+                <div style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)" class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"></div>
+            </div>
+            
+            <div class="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56">
+                <div class="text-center">
+                    <h1 class="text-5xl font-semibold tracking-tight text-balance text-gray-900 sm:text-7xl">Proviamo a fare il giro dal mondo</h1>
+                    <p class="mt-8 text-lg font-medium text-pretty text-gray-500 sm:text-xl/8">Scopri luoghi incredibili in tutto il mondo. Clicca sui punti del globo per esplorare destinazioni uniche e affascinanti.</p>
+                    <div class="mt-10 flex items-center justify-center gap-x-6">
+                        <button onclick="scrollToGlobe()" class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Vederlo</button>
+                        <a href="#" class="text-sm/6 font-semibold text-gray-900">Come farlo <span aria-hidden="true">→</span></a>
+                    </div>
+                </div>
+            </div>
+            
+            <div aria-hidden="true" class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]">
+                <div style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)" class="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Globe Section -->
+    <div id="globe-section" class="bg-gray-50 py-24">
+        <div class="mx-auto max-w-7xl px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-semibold tracking-tight text-gray-900 sm:text-4xl">Il nostro viaggio inizia qui</h2>
+                <p class="mt-4 text-lg text-gray-600">Clicca sui punti rossi per scoprire informazioni sui luoghi</p>
+            </div>
+            
+            <div id="globe-container" class="mx-auto w-full h-[500px] sm:h-[600px] lg:h-[700px] rounded-2xl shadow-2xl overflow-hidden bg-gradient-to-br from-blue-900 to-black"></div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="location-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal bg-black/50">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden">
+            <div class="relative">
+                <img id="modal-image" src="" alt="" class="w-full h-48 object-cover">
+                <div class="absolute top-4 right-4">
+                    <button onclick="closeModal()" class="bg-white/80 backdrop-blur-sm rounded-full p-2 hover:bg-white transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <h3 id="modal-title" class="text-2xl font-bold text-gray-900 mb-4"></h3>
+                <p id="modal-country" class="text-sm text-indigo-600 font-semibold mb-3"></p>
+                <p id="modal-description" class="text-gray-600 leading-relaxed mb-6"></p>
+                
+                <div class="flex gap-3">
+                    <button onclick="closeModal()" class="flex-1 bg-gray-100 text-gray-800 py-2 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors">
+                        Chiudi
+                    </button>
+                    <button id="modal-learn-more" class="flex-1 bg-indigo-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-indigo-700 transition-colors">
+                        Scopri di più
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        let scene, camera, renderer, earth, controls;
+        let clickablePoints = [];
+        const container = document.getElementById('globe-container');
+
+        // Données des locations avec plus d'informations
+        const locations = [
+            {
+                name: 'Parigi',
+                country: 'Francia',
+                lat: 48.8566,
+                lon: 2.3522,
+                description: 'La Città della Luce, famosa per la Torre Eiffel, il Louvre e la sua atmosfera romantica. Parigi è il cuore della cultura e dell\'arte francese.',
+                image: 'https://images.unsplash.com/photo-1502602898536-47ad22581b52?w=400&h=200&fit=crop'
+            },
+            {
+                name: 'New York',
+                country: 'Stati Uniti',
+                lat: 40.7128,
+                lon: -74.0060,
+                description: 'La Grande Mela, metropoli che non dorme mai. Grattacieli iconici, Central Park e Broadway rendono NYC una destinazione unica al mondo.',
+                image: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=400&h=200&fit=crop'
+            },
+            {
+                name: 'Tokyo',
+                country: 'Giappone',
+                lat: 35.6762,
+                lon: 139.6503,
+                description: 'Fusione perfetta tra tradizione e modernità. Tokyo offre templi antichi, tecnologia futuristica e una cultura gastronomica straordinaria.',
+                image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=400&h=200&fit=crop'
+            },
+            {
+                name: 'Sydney',
+                country: 'Australia',
+                lat: -33.8688,
+                lon: 151.2093,
+                description: 'Famosa per la sua Opera House e il Harbour Bridge. Sydney combina splendide spiagge urbane con un\'architettura iconica.',
+                image: 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=400&h=200&fit=crop'
+            },
+            {
+                name: 'Rio de Janeiro',
+                country: 'Brasile',
+                lat: -22.9068,
+                lon: -43.1729,
+                description: 'La Cidade Maravilhosa con le sue spiagge famose, il Cristo Redentore e il carnevale più spettacolare del mondo.',
+                image: 'https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=400&h=200&fit=crop'
+            },
+            {
+                name: 'Cairo',
+                country: 'Egitto',
+                lat: 30.0444,
+                lon: 31.2357,
+                description: 'Città delle Piramidi e della Sfinge. Il Cairo è il cuore dell\'antico Egitto con una storia che risale a millenni fa.',
+                image: 'https://images.unsplash.com/photo-1539650116574-75c0c6d73c6e?w=400&h=200&fit=crop'
+            }
+        ];
+
+        function init() {
+            // Scène
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.z = 4;
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setClearColor(0x000000, 0);
+            container.appendChild(renderer.domElement);
+
+            // Lumières
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(1, 1, 1);
+            scene.add(directionalLight);
+
+            // Texture de la Terre
+            const textureLoader = new THREE.TextureLoader();
+            
+            // Création d'une texture simple de la Terre
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 512;
+            canvas.height = 256;
+            
+            // Gradient pour simuler la Terre
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, '#4a90e2');
+            gradient.addColorStop(0.3, '#2e7d32');
+            gradient.addColorStop(0.7, '#8bc34a');
+            gradient.addColorStop(1, '#2196f3');
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Ajout de "continents" simplifiés
+            ctx.fillStyle = '#4caf50';
+            // Amérique
+            ctx.fillRect(100, 80, 80, 100);
+            // Europe/Afrique
+            ctx.fillRect(220, 60, 60, 120);
+            // Asie
+            ctx.fillRect(320, 70, 100, 90);
+            
+            const earthTexture = new THREE.CanvasTexture(canvas);
+
+            // Géométrie de la Terre
+            const earthGeometry = new THREE.SphereGeometry(1.5, 64, 64);
+            const earthMaterial = new THREE.MeshPhongMaterial({ 
+                map: earthTexture,
+                transparent: true,
+                opacity: 0.9
+            });
+            earth = new THREE.Mesh(earthGeometry, earthMaterial);
+            scene.add(earth);
+
+            // Points des locations
+            createLocationPoints();
+
+            // Contrôles
+            if (typeof THREE.OrbitControls !== 'undefined') {
+                controls = new THREE.OrbitControls(camera, renderer.domElement);
+                controls.enableDamping = true;
+                controls.dampingFactor = 0.05;
+                controls.enableZoom = true;
+                controls.enablePan = false;
+                controls.minDistance = 2.5;
+                controls.maxDistance = 8;
+            }
+
+            // Events
+            container.addEventListener('click', onMouseClick);
+            window.addEventListener('resize', onWindowResize);
+
+            // Animation
+            animate();
+        }
+
+        function latLonToVector3(lat, lon, radius) {
+            const phi = (90 - lat) * (Math.PI / 180);
+            const theta = (lon + 180) * (Math.PI / 180);
+            const x = -radius * Math.sin(phi) * Math.cos(theta);
+            const z = radius * Math.sin(phi) * Math.sin(theta);
+            const y = radius * Math.cos(phi);
+            return new THREE.Vector3(x, y, z);
+        }
+
+        function createLocationPoints() {
+            const pointGeometry = new THREE.SphereGeometry(0.04, 8, 8);
+            
+            locations.forEach(location => {
+                const pointMaterial = new THREE.MeshBasicMaterial({ 
+                    color: 0xff4444,
+                    transparent: true,
+                    opacity: 0.9
+                });
+                
+                const point = new THREE.Mesh(pointGeometry, pointMaterial);
+                point.position.copy(latLonToVector3(location.lat, location.lon, 1.52));
+                point.userData = location;
+                
+                // Ajouter un halo autour du point
+                const haloGeometry = new THREE.SphereGeometry(0.06, 8, 8);
+                const haloMaterial = new THREE.MeshBasicMaterial({
+                    color: 0xff6666,
+                    transparent: true,
+                    opacity: 0.3
+                });
+                const halo = new THREE.Mesh(haloGeometry, haloMaterial);
+                halo.position.copy(point.position);
+                
+                scene.add(point);
+                scene.add(halo);
+                clickablePoints.push(point);
+            });
+        }
+
+        function onMouseClick(event) {
+            const rect = container.getBoundingClientRect();
+            const mouse = new THREE.Vector2();
+            mouse.x = ((event.clientX - rect.left) / container.clientWidth) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / container.clientHeight) * 2 + 1;
+
+            const raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(mouse, camera);
+            
+            const intersects = raycaster.intersectObjects(clickablePoints);
+            if (intersects.length > 0) {
+                const location = intersects[0].object.userData;
+                openModal(location);
+            }
+        }
+
+        function openModal(location) {
+            document.getElementById('modal-title').textContent = location.name;
+            document.getElementById('modal-country').textContent = location.country;
+            document.getElementById('modal-description').textContent = location.description;
+            document.getElementById('modal-image').src = location.image;
+            document.getElementById('location-modal').classList.remove('hidden');
+            document.getElementById('location-modal').classList.add('flex');
+        }
+
+        function closeModal() {
+            document.getElementById('location-modal').classList.add('hidden');
+            document.getElementById('location-modal').classList.remove('flex');
+        }
+
+        function scrollToGlobe() {
+            document.getElementById('globe-section').scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+        }
+
+        function onWindowResize() {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            if (earth) {
+                earth.rotation.y += 0.002;
+            }
+            
+            if (controls) {
+                controls.update();
+            }
+            
+            renderer.render(scene, camera);
+        }
+
+        // Initialisation
+        init();
+
+        // Fermer le modal en cliquant à l'extérieur
+        document.getElementById('location-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
